@@ -111,6 +111,7 @@ $(document).ready(function() {
 
     venue_name = getUrlParameter("name");
     var vicinity = getUrlParameter("vicinity");
+
     var city = vicinity.split(",");
     city = city[city.length-1];
     $('.infoVenueName').append(venue_name);
@@ -139,10 +140,6 @@ function milesToMeters(miles) {
  * @param radius
  */
 function initMap(lat, long, radius) {
-    // var lat = 33;
-    // var long = -117;
-    //var radius = 50000;
-    //radius in meters
     var keyword = "music venues";
     if (!radius) {
         radius = 50000;
@@ -150,9 +147,6 @@ function initMap(lat, long, radius) {
         radius = milesToMeters(radius);
     }
     var original_location = {lat: lat, lng: long};
-
-    //var original_location = {lat: -33.867, lng: 151.195};
-
     map = new google.maps.Map(document.getElementById('map'), {
         center: original_location,
         zoom: 10
@@ -222,15 +216,11 @@ function addPlaceToDom(placeObj) {
 
     }
     var tr = $('<tr>');
-    var media_button = $('<a href="info.html?name=' + name + '&vicinity='+vicinity+' "><button type="button" class="btn btn-info mediaButton">Info</button></a>');
-    tr.append( $('<td>').html('<a href="#">' + name + '</a>') );
+    tr.append( $('<td>').html('<a class="venueName" href="info.html?name=' + name + '&vicinity='+vicinity+' ">' + name + '</a>') );
     tr.append( $('<td>').text(vicinity) );
     tr.append( $('<td>').text(hours) );
     tr.append( $('<td>').text(rating) );
-    tr.append( $('<td>').append(media_button) );
     tr.appendTo(places_list);
-    // var details = getPlaceDetails(placeid);
-    // console.log(details.url);
 }
 //END GOOGLE PLACES API
 
