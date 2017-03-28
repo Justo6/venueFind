@@ -60,7 +60,9 @@ $(document).ready(function() {
         $(".Container1").hide();
         $(".Container3").hide();
     });
+    if(getUrlParameter()){
 
+    }
 
     lat_from_landing = parseFloat(getUrlParameter("lat"));
     long_from_landing = parseFloat(getUrlParameter("long"));
@@ -108,18 +110,22 @@ $(document).ready(function() {
         $('.autoLocationButton').hide();
         $('.zipcodeForm').show();
     });
-
-    venue_name = getUrlParameter("name");
     var vicinity = getUrlParameter("vicinity");
+    if (vicinity==undefined){
+        return;
+    }
+    else{
+        venue_name = getUrlParameter("name");
+        var city = vicinity.split(",");
+        city = city[city.length-1];
+        $('.infoVenueName').append(venue_name);
+        $(".infoAddress").append(vicinity);
+        getAndDisplayFirstTweets(venue_name + city);    // gets tweets from Twitter API and displays on info.html
+        getAndDisplayYTVideos(venue_name + city);       // gets videos from YouTube API and displays on info.html
+        // flicker API call begins here
+        getAndDisplayFlickrPhotos(venue_name + city);
+    }
 
-    var city = vicinity.split(",");
-    city = city[city.length-1];
-    $('.infoVenueName').append(venue_name);
-    $(".infoAddress").append(vicinity);
-    getAndDisplayFirstTweets(venue_name + city);    // gets tweets from Twitter API and displays on info.html
-    getAndDisplayYTVideos(venue_name + city);       // gets videos from YouTube API and displays on info.html
-    // flicker API call begins here
-    getAndDisplayFlickrPhotos(venue_name + city);
 });
 
 /**
@@ -168,7 +174,6 @@ function callback(results, status) {
             createMarker(results[i]);
         }
     }
-    console.log(results);
     places_array = results;
     populateList();
 }
@@ -284,7 +289,6 @@ function getAndDisplayFlickrPhotos(string) {
     $(".container1").show();
     //imageSearch = $("#imageSearch").val();
     imageSearch = string;
-    console.log('click initiated' , imageSearch);
     $.ajax({
         dataType: 'json',
         url: "https://api.flickr.com/services/rest?method=flickr.photos.search&api_key=4291af049e7b51ff411bc39565109ce6&format=json&nojsoncallback=1&text=" + imageSearch,
@@ -313,7 +317,6 @@ function getAndDisplayFlickrPhotos(string) {
             }
         }
     });
-    console.log('End of click function');
 }
 
 /** This function receives venue_name as a parameter and then uses it as a search term for Twitter API.  It then gets all tweets (the profile pic of the tweeter and the tweet), places them into an object with 2 properties (urlPic & twt), and stores the object into the global array.  It then displays the first 5 tweets (assuming there are at least 5).  VL*/
@@ -322,8 +325,7 @@ function getAndDisplayFlickrPhotos(string) {
  */
 function getAndDisplayFirstTweets (Twitter_searchTerm) {
     var photo, picLink;
-    tweetNum = 1;       // global variable; this function is only called once at "document(ready)", so tweetNum will always be 1
-    console.log("in function getAndDisplayFirstTweets");
+    tweetNum = 1;
 
     $.ajax ({
         dataType:   'json',
@@ -331,20 +333,16 @@ function getAndDisplayFirstTweets (Twitter_searchTerm) {
         method:     "POST",
         data: {search_term: Twitter_searchTerm, lat: 34, long: -118, radius: 500},  // lat & long for Orange County
         success: function(result) {
-            console.log("result: ", result);    console.log('AJAX successfully called');
-
             var array = result.tweets.statuses;
             var length = array.length;
             totalTweetNum = length;             // global variable
 
             for (var j = 0; j < length; j++) {  // store each tweet pic url and text into object within global array
-                console.log("j: " + j);
                 tweet_storage_array[j] = {};
                 tweet_storage_array[j].urlPic = result.tweets.statuses[j].user.profile_image_url;
                 tweet_storage_array[j].twt = result.tweets.statuses[j].text;
             }
             displayTweets();                    // display the 1st five tweets
-            console.log("tweet_storage_array: ", tweet_storage_array);
         }
     });
 }
@@ -352,13 +350,10 @@ function getAndDisplayFirstTweets (Twitter_searchTerm) {
 /** This function displays 5 tweets at a time.  It creates a table in the DOM and retrieves the object properties (picture and tweet) from the global array.  It then dynamically creates elements onto the  table and displays the tweet (tweeter pic and tweet).  VL */
 function displayTweets() {
         var length, photo, picLink, secondNumber, tweet;
-
         secondNumber = tweetNum + 4;
-
         if (secondNumber > totalTweetNum) {     // don't want something like "6 to 10 of 8 tweets", want "6 to 8 of 8 tweets"
             secondNumber = totalTweetNum;
         }
-
         $(".Container2 .twit thead tr th:nth-child(3)").text(tweetNum);     // this is the table header
         $(".Container2 .twit thead tr th:nth-child(5)").text(secondNumber);
         $(".Container2 .twit thead tr th:nth-child(7)").text(totalTweetNum);
@@ -394,14 +389,12 @@ function displayFollowingTweets () {
     if (tweetNum > totalTweetNum) {
         tweetNum = 1;
     }
-
     displayTweets();
 }
 
 /** This function deletes the table rows of the old tweets first, then displays the preceding 5 tweets.  The if block logic takes care of the "wrap around".  Function called when clicking on "less than" symbol on left hand side. VL */
 function displayPrecedingTweets () {
     var remainder;
-
     tweetNum -= 5;
     $("tbody tr").remove();
 
@@ -414,40 +407,30 @@ function displayPrecedingTweets () {
             tweetNum = totalTweetNum - remainder + 1;
         }
     }
-
     displayTweets();
 }
-
 /** This function gets videos based on YT_searchTerm from YouTube.  It retrieves the title and id.  The id is the thing needed to run the video. VL */
 /**
  * @param YT_searchTerm - the text that YouTube searches on.
  */
 function getAndDisplayYTVideos (YT_searchTerm) {
     var title, id_video, vid;
-    console.log("in function getAndDisplayYTVideos");
-
     $.ajax({
         dataType: 'json',
         url: 'http://s-apis.learningfuze.com/hackathon/youtube/search.php?',
         method: "POST",
         data: {q: YT_searchTerm, maxResults: 5},
         success: function (result) {
-            console.log('AJAX successfully called');    console.log("result: ", result);
 
-            var array = result.video;
-            // var length = array.length;  save this just in case we want to include all YouTube videos.
-
-            for (var j = 0; j < YT_num; j++) {  // YT_num is a global variable that is initialized to 10 for now.
-                console.log("j: " + j);
-
-                title = result.video[j].title;  // Though we don't do anything with title, we might use it in future.
+            limit = YT_num;
+            if(result.video.length<YT_num){
+                var limit= result.video.length;
+            }
+            for (var j = 0; j < limit; j++) {  // YT_num is a global variable that is initialized to 10 for now.
                 id_video = result.video[j].id;
-
                 vid = $("<iframe>", {
-                    src: "https://www.youtube.com/embed/" + id_video
-                    // src:    "http://www.youtube.com/v/" + id_video + "?enablejsapi=1&version=3&playerapiid=ytplayer"
+                        src: "https://www.youtube.com/embed/" + id_video
                 });
-
                 if (!j) {
                     var youTubeDiv = $("<div>").addClass("item active");
                     $("#myCarousel2 .carousel-inner").append(youTubeDiv);
