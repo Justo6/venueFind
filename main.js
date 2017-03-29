@@ -222,7 +222,7 @@ function addPlaceToDom(placeObj) {
 
     }
     var tr = $('<tr>');
-    var url = "Info.html?";
+    var url = "info.html?";
     url += "name=" + name;
     url += "&vicinity=" + vicinity;
     url += "&lat=" + lat_from_landing;
@@ -332,18 +332,23 @@ function getAndDisplayFirstTweets (Twitter_searchTerm) {
         dataType:   'json',
         url:        'http://s-apis.learningfuze.com/hackathon/twitter/index.php',
         method:     "POST",
-        data: {search_term: Twitter_searchTerm, lat: 34, long: -118, radius: 500},  // lat & long for Orange County
+        data: {search_term: Twitter_searchTerm, lat: lat_from_landing, long: long_from_landing, radius: 500},  // lat & long for Orange County
         success: function(result) {
             var array = result.tweets.statuses;
             var length = array.length;
-            totalTweetNum = length;             // global variable
+            totalTweetNum = length; // global variable
 
             for (var j = 0; j < length; j++) {  // store each tweet pic url and text into object within global array
                 tweet_storage_array[j] = {};
                 tweet_storage_array[j].urlPic = result.tweets.statuses[j].user.profile_image_url;
                 tweet_storage_array[j].twt = result.tweets.statuses[j].text;
             }
-            displayTweets();                    // display the 1st five tweets
+            if(totalTweetNum===0){
+                return;
+            }
+            else{
+                displayTweets();// display the 1st five tweets
+            }
         }
     });
 }
