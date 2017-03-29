@@ -60,15 +60,16 @@ $(document).ready(function() {
         $(".Container1").hide();
         $(".Container3").hide();
     });
-    if(getUrlParameter()){
 
-    }
+
+
+
 
     lat_from_landing = parseFloat(getUrlParameter("lat"));
     long_from_landing = parseFloat(getUrlParameter("long"));
     radius_from_landing = parseInt(getUrlParameter("radius"));
 
-    if (lat_from_landing && long_from_landing) {
+    if (lat_from_landing && long_from_landing && document.getElementById("map")) {
         initMap(lat_from_landing, long_from_landing, radius_from_landing);
     }
 
@@ -120,6 +121,7 @@ $(document).ready(function() {
         city = city[city.length-1];
         $('.infoVenueName').append(venue_name);
         $(".infoAddress").append(vicinity);
+
         getAndDisplayFirstTweets(venue_name + city);    // gets tweets from Twitter API and displays on info.html
         getAndDisplayYTVideos(venue_name + city);       // gets videos from YouTube API and displays on info.html
         // flicker API call begins here
@@ -135,7 +137,6 @@ $(document).ready(function() {
  */
 function milesToMeters(miles) {
     var meters = miles * 1609.34;
-    console.log(miles + " miles to " + meters + " meters");
     return meters;
 }
 
@@ -221,7 +222,13 @@ function addPlaceToDom(placeObj) {
 
     }
     var tr = $('<tr>');
-    tr.append( $('<td>').html('<a class="venueName" href="info.html?name=' + name + '&vicinity='+vicinity+' ">' + name + '</a>') );
+    var url = "info.html?";
+    url += "name=" + name;
+    url += "&vicinity=" + vicinity;
+    url += "&lat=" + lat_from_landing;
+    url += "&long=" + long_from_landing;
+    url += "&radius=" + radius_from_landing;
+    tr.append( $('<td>').html("<a class='venueName' href='" + url + "'" +  ">" +name+ "</a>") );
     tr.append( $('<td>').text(vicinity) );
     tr.append( $('<td>').text(hours) );
     tr.append( $('<td>').text(rating) );
@@ -247,42 +254,36 @@ function getUrlParameter(sParam) {
 function landingPageButtonClicked() {
     zipcode = input_zipcode.val();
     radius = $('#radius').val();
-    console.log('click initiated');
+
     $.ajax({
         dataType: 'json',
         url: 'http://maps.googleapis.com/maps/api/geocode/json?address='+ zipcode,
         method: "POST",
         success: function(data) {
-            console.log('AJAX Success function called, with the following result:', data);
             latitude = data.results[0].geometry.location.lat;
             longitude= data.results[0].geometry.location.lng;
-            console.log(data);
-            console.log("Lat = "+latitude+"- Long = "+longitude + " - Radius = " +radius);
             document.location.href = "map.html?lat=" + latitude + "&long=" + longitude + "&radius=" + radius;
         }
     });
-    console.log('End of click function');
+
 }
 
 function zipCodeButtonClicked() {
     zipcode = input_zipcode.val();
     radius = $('#radius').val();
-    console.log('click initiated');
     $.ajax({
         dataType: 'json',
         url: 'http://maps.googleapis.com/maps/api/geocode/json?address='+ zipcode,
         method: "POST",
         success: function(data) {
-            console.log('AJAX Success function called, with the following result:', data);
             latitude = data.results[0].geometry.location.lat;
             latitude = data.results[0].geometry.location.lat;
             longitude= data.results[0].geometry.location.lng;
-            console.log(data);
-            console.log("Lat = "+latitude+"- Long = "+longitude + " - Radius = " +radius);
+
             initMap(latitude, longitude, radius);
         }
     });
-    console.log('End of click function');
+
 }
 
 function getAndDisplayFlickrPhotos(string) {
