@@ -30,24 +30,17 @@ button:hover{
 
 .carousel-inner > .item > img,
 .carousel-inner > .item > a > img {
-    width: 70%;
     margin: auto;
+    min-height: 100%;
 }
 
 .container{
-     width:80vw;
- }
+    width:80vw;
+}
 
 .photosButton > a{
     color:white;
 }
-
-/*.container{*/
-/*}*/
-
-/*.form-group{*/
-    /*margin:0 auto;*/
-/*}*/
 
 .form-inline{
     width:60vw;
@@ -59,7 +52,7 @@ button:hover{
     height:60vh;
     margin: 0 auto;
     position:relative;
-    top: 10vh;
+    top: 6vh;
     overflow:hidden;
     border-radius: 5px;
     border:2px solid #607D8B;;
@@ -89,7 +82,7 @@ iframe {
     border: 0;
     display: inline-block;
     width:100%;
-    height:360px;
+    height:100%;
 }
 
 .table-responsive{
@@ -101,13 +94,13 @@ iframe {
 .panel-default{
     padding:0;
     position:relative;
-    top: 15vh;
+    top: 7vh;
 }
 
 .btn-info {
-     background-color: #455A64;
-     border:none;
- }
+    background-color: #455A64;
+    border:none;
+}
 
 .btn-info:hover {
     background-color: #607D8B;
@@ -142,6 +135,7 @@ td:first-child:hover{
 
 .boldTitle{
     font-weight:900;
+    text-shadow: -1px -1px black, 1px -1px black, -1px 1px black, 1px 1px black;
 }
 
 .lightTitle{
@@ -195,6 +189,7 @@ h1{
 h4{
     padding-bottom:3vh;
     color:white;
+    text-shadow: -1px -1px black, 1px -1px black, -1px 1px black, 1px 1px black;
 }
 
 .zipCodeButton{
@@ -249,7 +244,6 @@ h4{
 */
 
 .headerContainer {
-    width: 100vw;
     height:28vh;
     padding-top:4vh;
     background-color:#607D8B;
@@ -278,27 +272,30 @@ h4{
     padding:0;
 }
 
-.Container1 {
-    height: 50vh;
+#myCarousel, #myCarousel2 {
+    background-color: #000;
+}
+
+#myCarousel, #myCarousel2, .carousel-inner, .item, .active {
+    height:100%;
+}
+
+.Container1, .Container2, .Container3 {
+    height: 500px;
     width: 70vw;
-    margin: 0 auto;
+    margin: 30px auto;
     position: relative;
-    top:11vh;
     border-radius: 5px;
     overflow: hidden;
     box-shadow: 0 2px 8px #7a7a7a;
 }
 
-.Container2{
-    height: 50vh;
-    width: 70vw;
-    margin: 0 auto;
-    position: relative;
-    top:11vh;
-    border-radius: 5px;
-    overflow: hidden;
+.Container2, .Container3 {
     display: none;
-    box-shadow: 0 2px 8px #7a7a7a;
+}
+
+.Container2 {
+    background-color: #ECEFF1;
 }
 
 .Container2 .twit thead tr th {
@@ -319,21 +316,7 @@ h4{
     padding-right:  4em;
 }
 
-.Container3 {
-    height: 50vh;
-    width: 70vw;
-    margin: 0 auto;
-    position: relative;
-    top:11vh;
-    border-radius: 5px;
-    overflow: hidden;
-    display:none;
-    box-shadow: 0 2px 8px #7a7a7a;
-}
-
 .dropdown{
-    /*transition: box-shadow 0.5s linear 0s, color 0.5s linear 0s;*/
-    /*margin: 0 auto;*/
     display:inline-block;
 }
 
@@ -352,10 +335,6 @@ h4{
     color:white;
 }
 
-/*.zipcodeForm {*/
-/*display: none;*/
-/*}*/
-
 .carousel-control.right,
 .carousel-control.left,
 .carousel-inner {
@@ -367,15 +346,11 @@ h4{
 .backButton{
     background-color:#37474F;
     border:none;
-    /*transition: box-shadow 0.5s linear 0s, color 0.5s linear 0s;*/
     box-shadow: 0 0 5px #7a7a7a;
     display:inline-block;
 }
 
 .backButton:hover{
-    /*top: -1px;*/
-    /*box-shadow: 0 0 5px #7a7a7a;*/
-    /*background-color: #263238;*/
     color:white;
 }
 
