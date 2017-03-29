@@ -222,7 +222,7 @@ function addPlaceToDom(placeObj) {
 
     }
     var tr = $('<tr>');
-    var url = "info.html?";
+    var url = "Info.html?";
     url += "name=" + name;
     url += "&vicinity=" + vicinity;
     url += "&lat=" + lat_from_landing;
