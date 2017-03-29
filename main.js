@@ -330,7 +330,7 @@ function getAndDisplayFirstTweets (Twitter_searchTerm) {
 
     $.ajax ({
         dataType:   'json',
-        url:        'http://s-apis.learningfuze.com/hackathon/twitter/index.php',
+        url:        'https://s-apis.learningfuze.com/hackathon/twitter/index.php',
         method:     "POST",
         data: {search_term: Twitter_searchTerm, lat: lat_from_landing, long: long_from_landing, radius: 500},  // lat & long for Orange County
         success: function(result) {
@@ -423,7 +423,7 @@ function getAndDisplayYTVideos (YT_searchTerm) {
     var title, id_video, vid;
     $.ajax({
         dataType: 'json',
-        url: 'http://s-apis.learningfuze.com/hackathon/youtube/search.php?',
+        url: 'https://s-apis.learningfuze.com/hackathon/youtube/search.php?',
         method: "POST",
         data: {q: YT_searchTerm, maxResults: 5},
         success: function (result) {
