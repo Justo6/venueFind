@@ -38,12 +38,20 @@ var totalTweetNum;              // the number of tweets we have pulled from Twit
 /**
  * YouTube variables
  */
-var YT_num = 10;                // maximum number of YouTube videos inserted into carousel
+var YT_num = 10;  // maximum number of YouTube videos inserted into carousel
+var youtubeStorage=[];
+var youtubeCounter=0;
 
-$(document).ready(function() {
 
+$(document).ready(function(){
+    var tag = document.createElement('script');
+    tag.src = 'https://www.youtube.com/iframe_api';
+    var firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+});
+
+function onYouTubeIframeAPIReady(){
     //initMap(51.4826,0.0077,100000);
-
     $(".dropPhotosButton").click(function () {
         $(".Container1").show();
         $(".Container2").hide();
@@ -60,11 +68,6 @@ $(document).ready(function() {
         $(".Container1").hide();
         $(".Container3").hide();
     });
-
-
-
-
-
     lat_from_landing = parseFloat(getUrlParameter("lat"));
     long_from_landing = parseFloat(getUrlParameter("long"));
     radius_from_landing = parseInt(getUrlParameter("radius"));
@@ -95,16 +98,11 @@ $(document).ready(function() {
             url: 'https://www.googleapis.com/geolocation/v1/geolocate?key=AIzaSyC87SYazc5x5nNq7digLxdNnB3riG_eaVc',
             method: "POST",
             success: function(data) {
-                console.log('AJAX Success function called, with the following result:', data);
                 latitude = data.location.lat;
                 longitude= data.location.lng;
-                console.log(data);
-                console.log("Lat = "+latitude+"- Long = "+longitude + " - Radius = " +radius);
                 document.location.href = "map.html?lat=" + latitude + "&long=" + longitude + "&radius=" + radius;
             }
         });
-        console.log('End of click function');
-
     });
     $('.manualLocationButton').click(function() {
         $('.manualLocationButton').hide();
@@ -123,12 +121,14 @@ $(document).ready(function() {
         $(".infoAddress").append(vicinity);
 
         getAndDisplayFirstTweets(venue_name + city);    // gets tweets from Twitter API and displays on info.html
+
         getAndDisplayYTVideos(venue_name + city);       // gets videos from YouTube API and displays on info.html
         // flicker API call begins here
         getAndDisplayFlickrPhotos(venue_name + city);
     }
 
-});
+}
+
 
 /**
  * Converts miles to meters
@@ -279,7 +279,6 @@ function zipCodeButtonClicked() {
             latitude = data.results[0].geometry.location.lat;
             latitude = data.results[0].geometry.location.lat;
             longitude= data.results[0].geometry.location.lng;
-
             initMap(latitude, longitude, radius);
         }
     });
@@ -288,7 +287,6 @@ function zipCodeButtonClicked() {
 
 function getAndDisplayFlickrPhotos(string) {
     $(".container1").show();
-    //imageSearch = $("#imageSearch").val();
     imageSearch = string;
     $.ajax({
         dataType: 'json',
@@ -420,34 +418,63 @@ function displayPrecedingTweets () {
  * @param YT_searchTerm - the text that YouTube searches on.
  */
 function getAndDisplayYTVideos (YT_searchTerm) {
-    var title, id_video, vid;
+    var title,
+        id_video;
     $.ajax({
         dataType: 'json',
         url: 'https://s-apis.learningfuze.com/hackathon/youtube/search.php?',
         method: "POST",
-        data: {q: YT_searchTerm, maxResults: 5},
+        data: {
+            q: YT_searchTerm,
+            maxResults: 5
+        },
         success: function (result) {
-
-            limit = YT_num;
+            var limit = YT_num;
             if(result.video.length<YT_num){
-                var limit= result.video.length;
+                limit= result.video.length;
             }
             for (var j = 0; j < limit; j++) {  // YT_num is a global variable that is initialized to 10 for now.
                 id_video = result.video[j].id;
-                vid = $("<iframe>", {
-                        src: "https://www.youtube.com/embed/" + id_video
-                });
+                var youTubeDiv = $("<div>").attr("id", id_video);
+
                 if (!j) {
-                    var youTubeDiv = $("<div>").addClass("item active");
+                    youTubeDiv.addClass("item active");
                     $("#myCarousel2 .carousel-inner").append(youTubeDiv);
-                    $(youTubeDiv).append(vid);
+                    $(youTubeDiv).append(youTubeDiv);
                 }
                 else {
-                    youTubeDiv = $("<div>").addClass("item");
+                    youTubeDiv.addClass("item");
                     $("#myCarousel2 .carousel-inner").append(youTubeDiv);
-                    $(youTubeDiv).append(vid);
+                    $(youTubeDiv).append(youTubeDiv);
                 }
+                var player =  new YT.Player(id_video, {
+                    width: 2380,
+                    height: 720,
+                    videoId: id_video,
+                    events: {}
+                });
+                youtubeStorage.push(player);
             }
         }
     });
 }
+
+function increaseYoutube() {
+    youtubeStorage[youtubeCounter].pauseVideo();
+    youtubeCounter++;
+    if(youtubeStorage.length===youtubeCounter){
+        youtubeCounter=0;
+    }
+}
+
+function decreaseYoutube() {
+    youtubeStorage[youtubeCounter].pauseVideo();
+    if(youtubeCounter==0){
+        youtubeCounter= youtubeStorage.length-1;
+    }
+    else{
+        youtubeCounter--;
+    }
+}
+
+
