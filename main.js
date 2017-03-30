@@ -1,7 +1,3 @@
-/* Sean, Miles, Mike, Vernon    Music Venue     Hack-a-thon     December 12-13, 2016    */
-
-//START GOOGLE PLACES API
-
 /**
  *  https://developers.google.com/maps/documentation/javascript/places
  */
@@ -38,18 +34,25 @@ var totalTweetNum;              // the number of tweets we have pulled from Twit
 /**
  * YouTube variables
  */
-var YT_num = 10;                // maximum number of YouTube videos inserted into carousel
+var YT_num = 10;  // maximum number of YouTube videos inserted into carousel
+var youtubeStorage=[];
+var youtubeCounter=0;
 
-$(document).ready(function() {
 
+$(document).ready(function(){
+    var tag = document.createElement('script');
+    tag.src = 'https://www.youtube.com/iframe_api';
+    var firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+});
+
+function onYouTubeIframeAPIReady(){
     //initMap(51.4826,0.0077,100000);
-
     $(".dropPhotosButton").click(function () {
         $(".Container1").show();
         $(".Container2").hide();
         $(".Container3").hide();
     });
-
     $(".dropYouTubeButton").click(function () {
         $(".Container3").show();
         $(".Container1").hide();
@@ -60,11 +63,6 @@ $(document).ready(function() {
         $(".Container1").hide();
         $(".Container3").hide();
     });
-
-
-
-
-
     lat_from_landing = parseFloat(getUrlParameter("lat"));
     long_from_landing = parseFloat(getUrlParameter("long"));
     radius_from_landing = parseInt(getUrlParameter("radius"));
@@ -95,16 +93,11 @@ $(document).ready(function() {
             url: 'https://www.googleapis.com/geolocation/v1/geolocate?key=AIzaSyC87SYazc5x5nNq7digLxdNnB3riG_eaVc',
             method: "POST",
             success: function(data) {
-                console.log('AJAX Success function called, with the following result:', data);
                 latitude = data.location.lat;
                 longitude= data.location.lng;
-                console.log(data);
-                console.log("Lat = "+latitude+"- Long = "+longitude + " - Radius = " +radius);
                 document.location.href = "map.html?lat=" + latitude + "&long=" + longitude + "&radius=" + radius;
             }
         });
-        console.log('End of click function');
-
     });
     $('.manualLocationButton').click(function() {
         $('.manualLocationButton').hide();
@@ -121,20 +114,21 @@ $(document).ready(function() {
         city = city[city.length-1];
         $('.infoVenueName').append(venue_name);
         $(".infoAddress").append(vicinity);
-
         getAndDisplayFirstTweets(venue_name + city);    // gets tweets from Twitter API and displays on info.html
+
         getAndDisplayYTVideos(venue_name + city);       // gets videos from YouTube API and displays on info.html
         // flicker API call begins here
         getAndDisplayFlickrPhotos(venue_name + city);
     }
 
-});
+}
 
 /**
  * Converts miles to meters
  * @param miles
  * @returns {number}
  */
+
 function milesToMeters(miles) {
     var meters = miles * 1609.34;
     return meters;
@@ -146,6 +140,7 @@ function milesToMeters(miles) {
  * @param long
  * @param radius
  */
+
 function initMap(lat, long, radius) {
     var keyword = "music venues";
     if (!radius) {
@@ -185,7 +180,6 @@ function createMarker(place) {
         map: map,
         position: place.geometry.location
     });
-
     google.maps.event.addListener(marker, 'click', function() {
         infowindow.setContent(place.name);
         infowindow.open(map, this);
@@ -244,7 +238,6 @@ function getUrlParameter(sParam) {
 
     for (i = 0; i < sURLVariables.length; i++) {
         sParameterName = sURLVariables[i].split('=');
-
         if (sParameterName[0] === sParam) {
             return sParameterName[1] === undefined ? true : sParameterName[1];
         }
@@ -279,7 +272,6 @@ function zipCodeButtonClicked() {
             latitude = data.results[0].geometry.location.lat;
             latitude = data.results[0].geometry.location.lat;
             longitude= data.results[0].geometry.location.lng;
-
             initMap(latitude, longitude, radius);
         }
     });
@@ -288,7 +280,6 @@ function zipCodeButtonClicked() {
 
 function getAndDisplayFlickrPhotos(string) {
     $(".container1").show();
-    //imageSearch = $("#imageSearch").val();
     imageSearch = string;
     $.ajax({
         dataType: 'json',
@@ -324,6 +315,7 @@ function getAndDisplayFlickrPhotos(string) {
 /**
  * @param Twitter_searchTerm - the text that the AJAX call to Twitter searches on
  */
+
 function getAndDisplayFirstTweets (Twitter_searchTerm) {
     var photo, picLink;
     tweetNum = 1;
@@ -333,6 +325,7 @@ function getAndDisplayFirstTweets (Twitter_searchTerm) {
         url:        'https://s-apis.learningfuze.com/hackathon/twitter/index.php',
         method:     "POST",
         data: {search_term: Twitter_searchTerm, lat: lat_from_landing, long: long_from_landing, radius: 500},  // lat & long for Orange County
+
         success: function(result) {
             var array = result.tweets.statuses;
             var length = array.length;
@@ -354,6 +347,7 @@ function getAndDisplayFirstTweets (Twitter_searchTerm) {
 }
 
 /** This function displays 5 tweets at a time.  It creates a table in the DOM and retrieves the object properties (picture and tweet) from the global array.  It then dynamically creates elements onto the  table and displays the tweet (tweeter pic and tweet).  VL */
+
 function displayTweets() {
         var length, photo, picLink, secondNumber, tweet;
         secondNumber = tweetNum + 4;
@@ -388,6 +382,7 @@ function displayTweets() {
     } // end of function displayTweets
 
 /** This function deletes the table rows of the old tweets first, then displays the next 5 tweets.  The if block takes care of the "wrap around" in case the user exceeds the number of tweets. Function called when clicking on "greater than" symbol on right hand side.  VL */
+
 function displayFollowingTweets () {
     tweetNum += 5;
     $("tbody tr").remove();
@@ -399,14 +394,13 @@ function displayFollowingTweets () {
 }
 
 /** This function deletes the table rows of the old tweets first, then displays the preceding 5 tweets.  The if block logic takes care of the "wrap around".  Function called when clicking on "less than" symbol on left hand side. VL */
+
 function displayPrecedingTweets () {
     var remainder;
     tweetNum -= 5;
     $("tbody tr").remove();
-
     if (tweetNum < 1) {             // if you're already at the 1st 5 tweets, then wrap around to the last tweets
         remainder = totalTweetNum % 5;
-
         if (remainder === 0) {      // tweetNum always starts at 1, 6, 11, 16, etc.
             tweetNum = totalTweetNum - 4;
         } else {
@@ -415,39 +409,70 @@ function displayPrecedingTweets () {
     }
     displayTweets();
 }
+
 /** This function gets videos based on YT_searchTerm from YouTube.  It retrieves the title and id.  The id is the thing needed to run the video. VL */
 /**
  * @param YT_searchTerm - the text that YouTube searches on.
  */
+
 function getAndDisplayYTVideos (YT_searchTerm) {
-    var title, id_video, vid;
+    var title,
+        id_video;
     $.ajax({
         dataType: 'json',
         url: 'https://s-apis.learningfuze.com/hackathon/youtube/search.php?',
         method: "POST",
-        data: {q: YT_searchTerm, maxResults: 5},
+        data: {
+            q: YT_searchTerm,
+            maxResults: 5
+        },
         success: function (result) {
-
-            limit = YT_num;
+            var limit = YT_num;
             if(result.video.length<YT_num){
-                var limit= result.video.length;
+                limit= result.video.length;
             }
             for (var j = 0; j < limit; j++) {  // YT_num is a global variable that is initialized to 10 for now.
                 id_video = result.video[j].id;
-                vid = $("<iframe>", {
-                        src: "https://www.youtube.com/embed/" + id_video
-                });
+                var youTubeDiv = $("<div>").attr("id", id_video);
+
                 if (!j) {
-                    var youTubeDiv = $("<div>").addClass("item active");
+                    youTubeDiv.addClass("item active");
                     $("#myCarousel2 .carousel-inner").append(youTubeDiv);
-                    $(youTubeDiv).append(vid);
+                    $(youTubeDiv).append(youTubeDiv);
                 }
                 else {
-                    youTubeDiv = $("<div>").addClass("item");
+                    youTubeDiv.addClass("item");
                     $("#myCarousel2 .carousel-inner").append(youTubeDiv);
-                    $(youTubeDiv).append(vid);
+                    $(youTubeDiv).append(youTubeDiv);
                 }
+                var player =  new YT.Player(id_video, {
+                    width: 2380,
+                    height: 720,
+                    videoId: id_video,
+                    events: {}
+                });
+                youtubeStorage.push(player);
             }
         }
     });
 }
+
+function increaseYoutube() {
+    youtubeStorage[youtubeCounter].pauseVideo();
+    youtubeCounter++;
+    if(youtubeStorage.length===youtubeCounter){
+        youtubeCounter=0;
+    }
+}
+
+function decreaseYoutube() {
+    youtubeStorage[youtubeCounter].pauseVideo();
+    if(youtubeCounter==0){
+        youtubeCounter= youtubeStorage.length-1;
+    }
+    else{
+        youtubeCounter--;
+    }
+}
+
+
